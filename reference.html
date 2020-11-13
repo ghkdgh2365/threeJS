@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { display: block; }
+		</style>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r122/three.min.js" integrity="sha512-bzjaf85dHTL4H0BvkAJ/Jbvxqf1rDj+jVpCNe3oxQj/RXSnkx1HnKhqIcmMWghxEAbXsYgddrc38saWpltlkug==" crossorigin="anonymous"></script>
+	</head>
+	<body>
+		<script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+		<script>
+			// scene 정의
+			const scene = new THREE.Scene();
+			scene.background = new THREE.Color( 0xDCDCDC );
+
+			// camera 정의
+			const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
+			camera.position.set(0, 200, 100);
+
+			// renderer 정의
+			const renderer = new THREE.WebGLRenderer({ antialias: true });
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			document.body.appendChild(renderer.domElement);
+
+			// camera 회전 정의
+			const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+			// 바닥에 grid 추가
+			// 사이즈 200, 분할 50, 가운데 라인 색상 "white", 전체 라인 색상 "gray"
+			scene.add(new THREE.GridHelper(200, 50, "white", "gray"));
+
+			// 샘플 좌표
+			const coordinates = {
+				"0": {
+					"0": "646.0, 631.0",
+					"1": "500.0, 631.0",
+					"2": "500.0, 613.0",
+					"3": "646.0, 613.0"
+				},
+				"1": {
+					"0": "415.0, 615.0",
+					"1": "325.0, 615.0",
+					"2": "325.0, 594.0",
+					"3": "415.0, 594.0"
+				},
+				"2": {
+					"0": "720.0, 361.0",
+					"1": "720.0, 284.0",
+					"2": "829.0, 284.0",
+					"3": "829.0, 361.0"
+				},
+				"3": {
+					"0": "36.0, 361.0",
+					"1": "36.0, 284.0",
+					"2": "145.0, 284.0",
+					"3": "145.0, 361.0"
+				},
+				"4": {
+					"0": "878.0, 635.0",
+					"1": "-0.0, 635.0",
+					"2": "0.0, 0.0",
+					"3": "878.0, 0.0"
+				}
+			}
+
+			// CylinderBufferGeometry의 분할 값 (모서리 갯수로 생각할 수 있음)
+			const divisions = 4;
+
+			for(var i=0; i<Object.keys(coordinates).length; i++) {
+				const coordinate = coordinates[i]
+				const points = []
+				const height = 30
+
+				// 좌표를 THREE.Vector3 의 array 로 만들기
+				// 일단은 마지막에 처음 좌표를 다시 추가해서 도형이 닫히도록 하였음
+				for(var j=0; j <= Object.keys(coordinate).length; j++) {
+					let order = j
+					order = (j == Object.keys(coordinate).length) ? 0 : order
+					const first_point = parseInt(coordinate[order].split(', ')[0]*0.1)
+					const last_point = parseInt(coordinate[order].split(', ')[1]*0.1)
+					const point = new THREE.Vector3(first_point, height, last_point)
+					points.push(point)
+				}
+
+				// 해당 포인트들과 x, z 좌표는 똑같은데 높이가 0인 점들을 정의
+				const upperPoints = points;
+				const lowerPoints = upperPoints.map(p => {
+					return new THREE.Vector3(p.x, 0, p.z)
+				});
+
+				// 해당 포인트들로 THREE.BufferGeometry 정의
+				const upperGeom = new THREE.BufferGeometry().setFromPoints(upperPoints);
+				const lowerGeom = new THREE.BufferGeometry().setFromPoints(lowerPoints);
+
+				// 해당 포인트들로 THREE.CylinderBufferGeometry 생성
+				const cylGeom = new THREE.CylinderBufferGeometry(0, 0, 0, divisions, 1); // create an open-ended cylinder
+				cylGeom.attributes.position.array.set(upperGeom.attributes.position.array, 0); // set coordinates for upper points
+				cylGeom.attributes.position.array.set(lowerGeom.attributes.position.array, (divisions + 1) * 3); // set coordinates of lower points
+				cylGeom.computeVertexNormals();
+
+				// mesh 정의하여 추가
+				// 색깔, side, 투명도 등
+				// side의 경우 앞면은 THREE.FrontSide, 양면은 THREE.DoubleSide, 뒷면은 THREE.BackSide
+				const outer_meterial = new THREE.MeshBasicMaterial({
+					color: 0x2F4F4F, 
+					side: THREE.FrontSide, 
+					opacity: 0.7,
+					transparent: true,
+				})
+				const block_meterial = new THREE.MeshBasicMaterial({
+					color: 0x4682B4, 
+					side: THREE.DoubleSide, 
+				})
+				const meterial = i == 4 ? outer_meterial : block_meterial;
+				const result = new THREE.Mesh(cylGeom, meterial);
+				scene.add(result);
+
+
+				// 상단 라인 그리기
+				const upperLine = new THREE.Line(upperGeom, new THREE.LineBasicMaterial({
+					color: "white",
+					opacity: 0,
+					transparent: true,
+				}));
+				scene.add(upperLine);
+
+				// 하단 라인 그리기
+				const lowerLine = new THREE.Line(lowerGeom, new THREE.LineBasicMaterial({
+					color: 0x2F4F4F
+				}));
+				scene.add(lowerLine);
+			}
+
+			// scene과 camera를 render 하기
+			renderer.setAnimationLoop(() => {
+				renderer.render(scene, camera);
+			});
+		</script>
+	</body>
+</html>
