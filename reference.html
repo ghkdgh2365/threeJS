@@ -134,6 +134,22 @@
 				scene.add(lowerLine);
 			}
 
+			let mainFloor;
+			mainFloor = new THREE.Mesh(
+				new THREE.BoxGeometry(200, 0.05, 200), 
+				new THREE.MeshBasicMaterial({color: 0x909090})
+			);
+			scene.add(mainFloor);
+			mainFloor.position.set(0, 0, 0);
+
+			let buildingFloor;
+			buildingFloor = new THREE.Mesh(
+				new THREE.BoxGeometry(parseInt(coordinates[4][0].split(', ')[0]*0.1), 0, parseInt(coordinates[4][0].split(', ')[1]*0.1)),
+				new THREE.MeshBasicMaterial({color: 0x2F4F4F})
+			);
+			scene.add(buildingFloor);
+			buildingFloor.position.set(parseInt(coordinates[4][0].split(', ')[0]*0.1/2), 0.1, parseInt(coordinates[4][0].split(', ')[1]*0.1/2));
+			
 			// scene과 camera를 render 하기
 			renderer.setAnimationLoop(() => {
 				renderer.render(scene, camera);
