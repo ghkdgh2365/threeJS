@@ -81,9 +81,6 @@
 					order = (j == Object.keys(coordinate).length) ? 0 : order
 					const first_point = parseInt((coordinate[order].split(', ')[0]*0.1 - coordinates[4][0].split(', ')[0]*0.1/2))
 					const last_point = parseInt((coordinate[order].split(', ')[1]*0.1 - coordinates[4][1].split(', ')[1]*0.1/2))
-
-					console.log(first_point)
-					console.log(last_point)
 					const point = new THREE.Vector3(first_point, height, last_point)
 					points.push(point)
 				}
