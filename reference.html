@@ -18,7 +18,7 @@
 
 			// camera 정의
 			const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
-			camera.position.set(0, 200, 100);
+			camera.position.set(0, 250, 100);
 
 			// renderer 정의
 			const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -30,7 +30,7 @@
 
 			// 바닥에 grid 추가
 			// 사이즈 200, 분할 50, 가운데 라인 색상 "white", 전체 라인 색상 "gray"
-			scene.add(new THREE.GridHelper(200, 50, "white", "gray"));
+			scene.add(new THREE.GridHelper(250,100, "white", "gray"));
 
 			// 샘플 좌표
 			const coordinates = {
@@ -79,8 +79,11 @@
 				for(var j=0; j <= Object.keys(coordinate).length; j++) {
 					let order = j
 					order = (j == Object.keys(coordinate).length) ? 0 : order
-					const first_point = parseInt(coordinate[order].split(', ')[0]*0.1)
-					const last_point = parseInt(coordinate[order].split(', ')[1]*0.1)
+					const first_point = parseInt((coordinate[order].split(', ')[0]*0.1 - coordinates[4][0].split(', ')[0]*0.1/2))
+					const last_point = parseInt((coordinate[order].split(', ')[1]*0.1 - coordinates[4][1].split(', ')[1]*0.1/2))
+
+					console.log(first_point)
+					console.log(last_point)
 					const point = new THREE.Vector3(first_point, height, last_point)
 					points.push(point)
 				}
@@ -136,7 +139,7 @@
 
 			let mainFloor;
 			mainFloor = new THREE.Mesh(
-				new THREE.BoxGeometry(200, 0.05, 200), 
+				new THREE.BoxGeometry(250, 0.05, 250), 
 				new THREE.MeshBasicMaterial({color: 0x909090})
 			);
 			scene.add(mainFloor);
@@ -148,8 +151,26 @@
 				new THREE.MeshBasicMaterial({color: 0x2F4F4F})
 			);
 			scene.add(buildingFloor);
-			buildingFloor.position.set(parseInt(coordinates[4][0].split(', ')[0]*0.1/2), 0.1, parseInt(coordinates[4][0].split(', ')[1]*0.1/2));
+			buildingFloor.position.set(0, 0.1, 0);
 			
+			// scene과 camera를 render 하기
+			renderer.setAnimationLoop(() => {
+				renderer.render(scene, camera);
+			});
+
+			const lineBasicMaterial = new THREE.LineBasicMaterial({
+				color: 0x0000ff
+			});
+
+			const dronepoints = [];
+			dronepoints.push( new THREE.Vector3( 36.0, 10, 5 ) );
+			dronepoints.push( new THREE.Vector3( 50, 30, 30 ) );
+			dronepoints.push( new THREE.Vector3( 10, 20, 20 ) );
+
+			const linegeometry = new THREE.BufferGeometry().setFromPoints( dronepoints );
+
+			const traceline = new THREE.Line( linegeometry, lineBasicMaterial );
+			scene.add( traceline );
 			// scene과 camera를 render 하기
 			renderer.setAnimationLoop(() => {
 				renderer.render(scene, camera);
@@ -157,3 +178,63 @@
 		</script>
 	</body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
